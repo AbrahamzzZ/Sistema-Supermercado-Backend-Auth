@@ -1,0 +1,25 @@
+﻿using Domain.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Domain.Contexts.Configuration
+{
+    public class RolConfiguration : IEntityTypeConfiguration<Rol>
+    {
+        public void Configure(EntityTypeBuilder<Rol> builder)
+        {
+            builder.ToTable("ROL");
+            builder.HasKey(e => e.IdRol);
+
+            builder.Property(e => e.IdRol).HasColumnName("ID_ROL");
+            builder.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("FECHA_CREACION");
+            builder.Property(e => e.Nombre)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("NOMBRE");
+        }
+    }
+}
