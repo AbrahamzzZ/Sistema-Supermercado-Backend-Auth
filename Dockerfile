@@ -1,8 +1,6 @@
-# ---------- build ----------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Primero solo los .csproj para aprovechar la caché de "dotnet restore"
 COPY Auth/Auth.csproj Auth/
 COPY Domain/Domain.csproj Domain/
 COPY Infrastructure/Infrastructure.csproj Infrastructure/
@@ -12,7 +10,6 @@ RUN dotnet restore Auth/Auth.csproj
 COPY . .
 RUN dotnet publish Auth/Auth.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
 
-# ---------- runtime ----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=8080
