@@ -1,26 +1,25 @@
 ﻿using Domain.Model;
 using Domain.Model.Dto;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace Infrastructure.Helpers
 {
     public class Token
     {
         private readonly IConfiguration _configuration;
+        private readonly RsaKeyProvider _keyProvider;
 
-        public Token(IConfiguration configuration)
+        public Token(IConfiguration configuration, RsaKeyProvider keyProvider)
         {
             _configuration = configuration;
+            _keyProvider = keyProvider;
         }
 
         public string GenerarToken(UsuarioRol usuario, List<Menu> permisos)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
             var claims = new List<Claim>
             {
@@ -28,7 +27,8 @@ namespace Infrastructure.Helpers
                 new(ClaimTypes.Name, usuario.Nombre_Completo ?? ""),
                 new(ClaimTypes.Email, usuario.Correo_Electronico ?? ""),
                 new(ClaimTypes.Role, usuario.Nombre_Rol ?? "Usuario"),
-                new("codigo", usuario.Codigo ?? "")
+                new("codigo", usuario.Codigo ?? ""),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             foreach (var menu in permisos)
@@ -36,14 +36,15 @@ namespace Infrastructure.Helpers
                 claims.Add(new Claim("permiso", menu.CodigoMenu ?? ""));
             }
 
-            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+            var ahora = DateTime.UtcNow;
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(jwtSettings.GetValue<int>("DurationInMinutes")),
-                signingCredentials: credentials
+                notBefore: ahora,
+                expires: ahora.AddMinutes(jwtSettings.GetValue<int>("DurationInMinutes")),
+                signingCredentials: _keyProvider.SigningCredentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
