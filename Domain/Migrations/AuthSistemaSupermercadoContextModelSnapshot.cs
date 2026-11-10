@@ -22,6 +22,71 @@ namespace Domain.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Model.Dto.UsuarioCredencial", b =>
+                {
+                    b.Property<string>("Clave")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Codigo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo_Electronico")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Estado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("Fecha_Creacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Id_Rol")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre_Completo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre_Rol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Model.Dto.UsuarioRol", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo_Electronico")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Estado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("Fecha_Creacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Id_Rol")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Usuario")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre_Completo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre_Rol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
+
             modelBuilder.Entity("Domain.Model.Menu", b =>
                 {
                     b.Property<int>("IdMenu")
@@ -39,9 +104,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaCreacion")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_CREACION")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<string>("NombreIcono")
                         .HasMaxLength(50)
@@ -97,9 +162,9 @@ namespace Domain.Migrations
 
                     b.Property<DateTime?>("FechaCreacion")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_CREACION")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
 
                     b.Property<string>("Nombre")
                         .HasMaxLength(30)
@@ -137,15 +202,33 @@ namespace Domain.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("CORREO_ELECTRONICO");
 
+                    b.Property<bool>("Eliminado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("ELIMINADO");
+
                     b.Property<bool?>("Estado")
                         .HasColumnType("bit")
                         .HasColumnName("ESTADO");
 
-                    b.Property<DateTime?>("Fecha_Creacion")
+                    b.Property<DateTime>("FechaCreacion")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("FECHA_CREACION")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasDefaultValueSql("(sysutcdatetime())");
+
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("FECHA_MODIFICACION");
+
+                    b.Property<int?>("IdUsuarioCreacion")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_USUARIO_CREACION");
+
+                    b.Property<int?>("IdUsuarioModificacion")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_USUARIO_MODIFICACION");
 
                     b.Property<int?>("Id_Rol")
                         .HasColumnType("int")
