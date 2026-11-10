@@ -17,7 +17,7 @@ namespace Infrastructure.Repository
         public async Task<List<Rol>> ListarRolesAsync()
         {
             return await _context.Rol
-                .FromSqlRaw("EXEC PA_LISTA_Rol")
+                .FromSqlRaw("EXEC PA_LISTA_ROL")
                 .ToListAsync();
         }
     }

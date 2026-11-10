@@ -1,6 +1,8 @@
-﻿namespace Domain.Model
+﻿using Domain.Model.Common;
+
+namespace Domain.Model
 {
-    public class Usuario
+    public class Usuario : EntidadAuditable, IEliminable
     {
         public int Id_Usuario { get; set; }
         public string? Codigo { get; set; }
@@ -12,7 +14,8 @@
 
         public bool? Estado { get; set; }
 
-        public DateTime? Fecha_Creacion { get; set; }
+        public bool Eliminado { get; set; }
+
         public virtual Rol? IdRolNavigation { get; set; }
     }
 }

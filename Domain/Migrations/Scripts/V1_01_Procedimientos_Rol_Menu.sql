@@ -1,0 +1,27 @@
+-- =============================================================
+-- Auth · V1_01 · Procedimientos de ROL y MENU
+-- =============================================================
+
+CREATE OR ALTER PROCEDURE PA_LISTA_ROL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT ID_ROL, NOMBRE, FECHA_CREACION FROM ROL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE PA_OBTENER_MENU(
+    @Id_Usuario INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT M.ID_MENU, M.NOMBRE_MENU, M.CODIGO_MENU, M.NOMBRE_ICONO, M.FECHA_CREACION FROM USUARIO U
+    INNER JOIN ROL R ON U.ID_ROL = R.ID_ROL
+    INNER JOIN PERMISO P ON R.ID_ROL = P.ID_ROL
+    INNER JOIN MENU M ON P.ID_MENU = M.ID_MENU
+    WHERE U.ID_USUARIO = @Id_Usuario AND U.ELIMINADO = 0;
+END;
+GO

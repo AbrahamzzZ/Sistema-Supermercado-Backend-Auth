@@ -1,3 +1,4 @@
+using Auth.Observabilidad;
 using Domain.Context;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
@@ -5,8 +6,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Logs estructurados con Serilog: consola + Seq (servidor central de logs de todos los microservicios)
+builder.Host.UseSerilog((ctx, sp, cfg) => cfg
+    .ReadFrom.Configuration(ctx.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Servicio", "Auth")
+    .WriteTo.Console()
+    .WriteTo.Seq(ctx.Configuration["Seq:ServerUrl"] ?? "http://localhost:5341"));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 using var loggerFactory = LoggerFactory.Create(l => l.AddConsole());
@@ -115,6 +130,21 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AuthSistemaSupermercadoContext>();
     dbContext.Database.Migrate();
 }
+
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseExceptionHandler();
+app.UseSerilogRequestLogging(o =>
+{
+    o.GetLevel = (ctx, _, ex) =>
+        ex != null || ctx.Response.StatusCode >= 500 ? LogEventLevel.Error
+        : ctx.Response.StatusCode >= 400 ? LogEventLevel.Warning
+        : LogEventLevel.Information;
+    o.EnrichDiagnosticContext = (d, ctx) =>
+    {
+        d.Set("IdUsuario", ctx.User.FindFirstValue(ClaimTypes.NameIdentifier));
+        d.Set("CorrelationId", ctx.Items[CorrelationIdMiddleware.ItemKey]);
+    };
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))

@@ -19,6 +19,7 @@ namespace Domain.Context
         {
             //Clases serializadas
             modelBuilder.Entity<UsuarioRol>().HasNoKey().ToView(null);
+            modelBuilder.Entity<UsuarioCredencial>().HasNoKey().ToView(null);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuthSistemaSupermercadoContext).Assembly);
         }

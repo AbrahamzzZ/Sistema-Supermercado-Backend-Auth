@@ -2,10 +2,10 @@
 using Domain.Model;
 using Domain.Model.Dto;
 using Infrastructure.Repository.InterfacesRepository;
+using Infrastructure.Security;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using Utilities.Security;
 using Utilities.Shared;
 
 namespace Infrastructure.Repository
@@ -13,11 +13,15 @@ namespace Infrastructure.Repository
     public class UsuarioRepository :IUsuarioRepository
     {
         private readonly AuthSistemaSupermercadoContext _context;
+        private readonly ICurrentUserService _currentUser;
 
-        public UsuarioRepository(AuthSistemaSupermercadoContext context)
+        public UsuarioRepository(AuthSistemaSupermercadoContext context, ICurrentUserService currentUser)
         {
             _context = context;
+            _currentUser = currentUser;
         }
+
+        private SqlParameter ParametroUsuario(string nombre) => new(nombre, (object?)_currentUser.IdUsuario ?? DBNull.Value);
 
         public async Task<List<UsuarioRol>> ListarUsuariosAsync()
         {
@@ -78,34 +82,41 @@ namespace Infrastructure.Repository
             );
         }
 
-        public async Task<UsuarioRol?> IniciarSesionAsync(Login login)
+        public async Task<UsuarioCredencial?> ObtenerCredencialAsync(string correoElectronico)
         {
-            string claveEncriptada = Encriptacion.EncriptarSHA256(login.Clave ?? "");
+            var correoParam = new SqlParameter("@Correo_Electronico", correoElectronico);
 
-            var correoParam = new SqlParameter("@Correo_Electronico", login.Correo_Electronico ?? (object)DBNull.Value);
-            var claveParam = new SqlParameter("@Clave", claveEncriptada);
-
-            return await Task.Run(() =>
-                _context.UsuariosDto
-                .FromSqlRaw("EXEC PA_INICIAR_SESION @Correo_Electronico, @Clave", correoParam, claveParam)
+            var resultado = await _context.Set<UsuarioCredencial>()
+                .FromSqlRaw("EXEC PA_INICIAR_SESION @Correo_Electronico = @Correo_Electronico", correoParam)
                 .AsNoTracking()
-                .AsEnumerable()
-                .FirstOrDefault()
+                .ToListAsync();
+
+            return resultado.FirstOrDefault();
+        }
+
+        public async Task<int> ActualizarClaveAsync(int idUsuario, string claveHash)
+        {
+            return await _context.Database.ExecuteSqlRawAsync(
+                "EXEC PA_ACTUALIZAR_CLAVE @Id_Usuario = @Id_Usuario, @Clave = @Clave",
+                new SqlParameter("@Id_Usuario", idUsuario),
+                new SqlParameter("@Clave", claveHash)
             );
         }
 
         public async Task<int> RegistrarUsuarioAsync(Usuario usuario)
         {
-            string claveEncriptada = Encriptacion.EncriptarSHA256(usuario.Clave ?? "");
+            string claveHash = ClaveHasher.Hashear(usuario.Clave ?? "");
 
             return await _context.Database.ExecuteSqlRawAsync(
-                "EXEC PA_REGISTRAR_USUARIO @Codigo, @Nombre_Completo, @Correo_Electronico, @Clave, @Id_Rol, @Estado",
+                "EXEC PA_REGISTRAR_USUARIO @Codigo = @Codigo, @Nombre_Completo = @Nombre_Completo, @Correo_Electronico = @Correo_Electronico, " +
+                "@Clave = @Clave, @Id_Rol = @Id_Rol, @Estado = @Estado, @Id_Usuario_Creacion = @Id_Usuario_Creacion",
                 new SqlParameter("@Codigo", usuario.Codigo ?? (object)DBNull.Value),
                 new SqlParameter("@Nombre_Completo", usuario.Nombre_Completo ?? (object)DBNull.Value),
                 new SqlParameter("@Correo_Electronico", usuario.Correo_Electronico ?? (object)DBNull.Value),
-                new SqlParameter("@Clave", claveEncriptada),
+                new SqlParameter("@Clave", claveHash),
                 new SqlParameter("@Id_Rol", usuario.Id_Rol ?? (object)DBNull.Value),
-                new SqlParameter("@Estado", usuario.Estado ?? (object)DBNull.Value)
+                new SqlParameter("@Estado", usuario.Estado ?? (object)DBNull.Value),
+                ParametroUsuario("@Id_Usuario_Creacion")
             );
         }
 
@@ -113,40 +124,34 @@ namespace Infrastructure.Repository
         {
             var usuarioActual = await _context.Usuario
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id_Usuario == usuario.Id_Usuario);
+                .FirstOrDefaultAsync(u => u.Id_Usuario == usuario.Id_Usuario && !u.Eliminado);
 
             if (usuarioActual == null)
                 throw new Exception("Usuario no encontrado");
 
-            string claveEncriptada;
-
-            // Si el usuario envía una nueva clave
-            if (!string.IsNullOrEmpty(usuario.Clave))
-            {
-                claveEncriptada = Encriptacion.EncriptarSHA256(usuario.Clave);
-            }
-            else
-            {
-                // Si no envió nada, mantenemos la clave actual
-                claveEncriptada = usuarioActual.Clave ?? "";
-            }
+            string claveHash = !string.IsNullOrEmpty(usuario.Clave)
+                ? ClaveHasher.Hashear(usuario.Clave)
+                : usuarioActual.Clave ?? "";
 
             return await _context.Database.ExecuteSqlRawAsync(
-                "EXEC PA_EDITAR_USUARIO @Id_Usuario, @Nombre_Completo, @Correo_Electronico, @Clave, @Id_Rol, @Estado",
+                "EXEC PA_EDITAR_USUARIO @Id_Usuario = @Id_Usuario, @Nombre_Completo = @Nombre_Completo, @Correo_Electronico = @Correo_Electronico, " +
+                "@Clave = @Clave, @Id_Rol = @Id_Rol, @Estado = @Estado, @Id_Usuario_Modificacion = @Id_Usuario_Modificacion",
                 new SqlParameter("@Id_Usuario", usuario.Id_Usuario),
                 new SqlParameter("@Nombre_Completo", usuario.Nombre_Completo ?? (object)DBNull.Value),
                 new SqlParameter("@Correo_Electronico", usuario.Correo_Electronico ?? (object)DBNull.Value),
-                new SqlParameter("@Clave", claveEncriptada),
+                new SqlParameter("@Clave", claveHash),
                 new SqlParameter("@Id_Rol", usuario.Id_Rol ?? (object)DBNull.Value),
-                new SqlParameter("@Estado", usuario.Estado ?? (object)DBNull.Value)
+                new SqlParameter("@Estado", usuario.Estado ?? (object)DBNull.Value),
+                ParametroUsuario("@Id_Usuario_Modificacion")
             );
         }
 
         public async Task<int> EliminarUsuarioAsync(int idUsuario)
         {
             return await _context.Database.ExecuteSqlRawAsync(
-                "EXEC PA_ELIMINAR_USUARIO @Id_Usuario",
-                new SqlParameter("@Id_Usuario", idUsuario)
+                "EXEC PA_ELIMINAR_USUARIO @Id_Usuario = @Id_Usuario, @Id_Usuario_Modificacion = @Id_Usuario_Modificacion",
+                new SqlParameter("@Id_Usuario", idUsuario),
+                ParametroUsuario("@Id_Usuario_Modificacion")
             );
         }
     }

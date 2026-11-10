@@ -9,7 +9,8 @@ namespace Infrastructure.Repository.InterfacesRepository
         Task<List<UsuarioRol>> ListarUsuariosAsync();
         Task<Paginacion<UsuarioRol>> ListarUsuariosPaginacionAsync(int pageNumber, int pageSize);
         Task<UsuarioRol?> ObtenerUsuarioAsync(int idUsuario);
-        Task<UsuarioRol?> IniciarSesionAsync(Login login);
+        Task<UsuarioCredencial?> ObtenerCredencialAsync(string correoElectronico);
+        Task<int> ActualizarClaveAsync(int idUsuario, string claveHash);
         Task<int> RegistrarUsuarioAsync(Usuario usuario);
         Task<int> EditarUsuarioAsync(Usuario usuario);
         Task<int> EliminarUsuarioAsync(int idUsuario);

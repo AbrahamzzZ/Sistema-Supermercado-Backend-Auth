@@ -18,4 +18,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Scripts SQL (procedimientos, tipos y datos iniciales) que ejecutan las migraciones -->
+    <EmbeddedResource Include="Migrations\Scripts\**\*.sql" />
+  </ItemGroup>
+
 </Project>
