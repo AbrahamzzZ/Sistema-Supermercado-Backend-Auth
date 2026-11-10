@@ -13,8 +13,8 @@ namespace Domain.Contexts.Configuration
 
             builder.Property(e => e.IdMenu).HasColumnName("ID_MENU");
             builder.Property(e => e.FechaCreacion)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnType("datetime2")
                 .HasColumnName("FECHA_CREACION");
             builder.Property(e => e.NombreIcono)
                 .HasMaxLength(50)
