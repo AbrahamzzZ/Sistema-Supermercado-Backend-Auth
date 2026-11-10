@@ -79,6 +79,7 @@ namespace APIRestSistemaVentas.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<object>>> EditarUsuario(int id, [FromBody] Usuario usuario)
         {
+            usuario.Id_Usuario = id;
             var response = await _usuarioService.EditarUsuarioAsync(usuario);
             return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
