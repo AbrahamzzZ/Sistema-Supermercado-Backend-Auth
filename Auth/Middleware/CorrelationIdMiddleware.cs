@@ -1,4 +1,6 @@
-namespace Auth.Observabilidad
+using Serilog.Context;
+
+namespace Auth.Middleware
 {
     public class CorrelationIdMiddleware
     {
