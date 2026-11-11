@@ -80,14 +80,6 @@ builder.Services.AddRateLimiter(option =>
 
 builder.Services.AddControllers();
 
-// Creacion de una nueva politica
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("NuevaPolitica", app =>
-    {
-        app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
 
 // Agregar Swagger para documentación API  https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -151,8 +143,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors("NuevaPolitica");
 
 app.UseRouting();
 
