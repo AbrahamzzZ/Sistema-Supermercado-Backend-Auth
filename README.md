@@ -131,6 +131,11 @@ Las migraciones se aplican solas al iniciar (`Database.Migrate()` en `Program.cs
 |---|---|
 | `Init` | Tablas `USUARIO`, `ROL`, `MENU`, `PERMISO` |
 | `AuditoriaYProcedimientos` | Columnas de auditoría y `ELIMINADO` en `USUARIO`, fechas en UTC (`datetime2`), procedimientos almacenados y datos iniciales |
+| `MenuUrl` | `MENU.CODIGO_MENU` (`001`…) se renombra a `URL_MENU` con la ruta del frontend (`/usuario`, `/compra`…), igual que en el monolito |
+
+**Menús y permisos en el token:** cada menú del rol se agrega al token como un claim `permiso` con su `URL_MENU`.
+El frontend compara esas URL con la ruta de cada pantalla, y `GET /api/Menu/{idUsuario}` devuelve `urlMenu` para
+armar el menú lateral. Si se agrega un menú, su `URL_MENU` debe coincidir con la ruta del frontend.
 
 ### Procedimientos almacenados y datos iniciales
 
@@ -143,6 +148,7 @@ ensamblado `Domain` (ver `Domain.csproj`). La migración los ejecuta con `migrat
 | `V1_01_Procedimientos_Rol_Menu.sql` | `PA_LISTA_ROL`, `PA_OBTENER_MENU` |
 | `V1_02_Procedimientos_Usuario.sql` | `PA_LISTA_USUARIO`, `PA_LISTA_USUARIO_PAGINACION`, `PA_OBTENER_USUARIO`, `PA_INICIAR_SESION`, `PA_ACTUALIZAR_CLAVE`, `PA_REGISTRAR_USUARIO`, `PA_EDITAR_USUARIO`, `PA_ELIMINAR_USUARIO` |
 | `V1_03_Datos_Iniciales.sql` | Roles, menús, permisos y usuario administrador (idempotente) |
+| `V2_01_Procedimientos_Menu.sql` | `PA_OBTENER_MENU` devuelve `URL_MENU` (migración `MenuUrl`) |
 
 **Para cambiar un SP en el futuro:** no edites un archivo que ya se aplicó (las bases existentes no lo volverían a
 ejecutar). Crea un archivo nuevo versionado, por ejemplo `V2_01_Usuario_NuevoCampo.sql`, con `CREATE OR ALTER PROCEDURE`,
