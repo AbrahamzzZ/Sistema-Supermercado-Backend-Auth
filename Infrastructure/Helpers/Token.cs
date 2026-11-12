@@ -33,7 +33,7 @@ namespace Infrastructure.Helpers
 
             foreach (var menu in permisos)
             {
-                claims.Add(new Claim("permiso", menu.CodigoMenu ?? ""));
+                claims.Add(new Claim("permiso", menu.UrlMenu ?? ""));
             }
 
             var ahora = DateTime.UtcNow;

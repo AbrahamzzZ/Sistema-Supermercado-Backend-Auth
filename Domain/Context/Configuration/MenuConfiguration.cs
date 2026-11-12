@@ -24,10 +24,10 @@ namespace Domain.Contexts.Configuration
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("NOMBRE_MENU");
-            builder.Property(e => e.CodigoMenu)
+            builder.Property(e => e.UrlMenu)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("CODIGO_MENU");
+                .HasColumnName("URL_MENU");
         }
     }
 }
