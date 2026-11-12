@@ -59,7 +59,7 @@ namespace APIRestSistemaVentas.Controllers
             if (!response.IsSuccess)
                 return Unauthorized(response);
 
-            List<Menu> menus = await _menuService.ObtenerMenusAsync(response.Data!.Id_Usuario);
+            List<Menu> menus = (await _menuService.ObtenerMenusAsync(response.Data!.Id_Usuario)).Data ?? [];
             string tokenGenerado = _token.GenerarToken(response.Data, menus);
 
             return Ok(new ApiResponse<object> { IsSuccess = true, Message = Mensajes.MESSAGE_TOKEN, Data = new { token = tokenGenerado }} );
