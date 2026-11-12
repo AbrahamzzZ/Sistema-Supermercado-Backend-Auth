@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Utilities.Shared;
 
-namespace Auth.Observabilidad
+namespace Auth.Middleware
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {

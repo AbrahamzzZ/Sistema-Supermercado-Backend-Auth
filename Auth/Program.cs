@@ -1,4 +1,4 @@
-using Auth.Observabilidad;
+using Auth.Middleware;
 using Domain.Context;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
@@ -12,7 +12,6 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Logs estructurados con Serilog: consola + Seq (servidor central de logs de todos los microservicios)
 builder.Host.UseSerilog((ctx, sp, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
@@ -81,14 +80,6 @@ builder.Services.AddRateLimiter(option =>
 
 builder.Services.AddControllers();
 
-// Creacion de una nueva politica
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("NuevaPolitica", app =>
-    {
-        app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
 
 // Agregar Swagger para documentación API  https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -152,8 +143,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors("NuevaPolitica");
 
 app.UseRouting();
 
