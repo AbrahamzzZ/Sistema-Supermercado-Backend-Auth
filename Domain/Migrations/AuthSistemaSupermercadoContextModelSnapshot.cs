@@ -96,11 +96,11 @@ namespace Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdMenu"));
 
-                    b.Property<string>("CodigoMenu")
+                    b.Property<string>("UrlMenu")
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("CODIGO_MENU");
+                        .HasColumnName("URL_MENU");
 
                     b.Property<DateTime?>("FechaCreacion")
                         .ValueGeneratedOnAdd()

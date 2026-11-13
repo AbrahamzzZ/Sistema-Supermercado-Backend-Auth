@@ -147,6 +147,15 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
 app.UseRouting();
 
 app.UseAuthentication();
+
+app.Use(async (context, next) =>
+{
+    using (Serilog.Context.LogContext.PushProperty("IdUsuario", context.User.FindFirstValue(ClaimTypes.NameIdentifier)))
+    using (Serilog.Context.LogContext.PushProperty("RequestMethod", context.Request.Method))
+    {
+        await next();
+    }
+});
 app.UseAuthorization();
 
 app.MapControllers();
