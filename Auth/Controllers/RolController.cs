@@ -1,5 +1,5 @@
 ﻿using Domain.Model;
-using Infrastructure.Services;
+using Infrastructure.Repository.InterfacesServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Utilities.Shared;
@@ -11,9 +11,9 @@ namespace APIRestSistemaVentas.Controllers
     [ApiController]
     public class RolController : ControllerBase
     {
-        private readonly RolService _rolService;
+        private readonly IRolService _rolService;
 
-        public RolController(RolService rolService)
+        public RolController(IRolService rolService)
         {
             _rolService = rolService;
         }
