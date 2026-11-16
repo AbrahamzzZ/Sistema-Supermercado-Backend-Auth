@@ -1,5 +1,6 @@
 ﻿using Domain.Context;
 using Domain.Model;
+using Infrastructure.Repository.InterfacesServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ using Utilities.Shared;
 
 namespace Infrastructure.Services
 {
-    public class MenuService
+    public class MenuService : IMenuService
     {
         private readonly AuthSistemaSupermercadoContext _context;
         private readonly ILogger<MenuService> _logger;

@@ -9,3 +9,4 @@
 **/docker-compose*.yml
 **/*.http
 **/Properties/launchSettings.json
+**/*.Tests/
