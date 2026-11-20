@@ -1,0 +1,33 @@
+name: Pruebas unitarias
+
+on:
+  push:
+    branches: [main, 1-dev]
+  pull_request:
+    branches: [main, 1-dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restaurar
+        run: dotnet restore API-Auth.sln
+
+      - name: Compilar
+        run: dotnet build API-Auth.sln --no-restore -c Release
+
+      - name: Pruebas
+        run: dotnet test API-Auth.sln --no-build -c Release --logger "trx;LogFileName=resultados.trx"
+
+      - name: Publicar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-pruebas
+          path: '**/TestResults/*.trx'

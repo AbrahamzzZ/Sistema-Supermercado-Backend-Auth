@@ -14,8 +14,8 @@ namespace Infrastructure.Extensions
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<RolRepository>();
-            services.AddScoped<UsuarioRepository>();
+            services.AddScoped<IRolRepository, RolRepository>();
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
             return services;
         }
@@ -25,9 +25,9 @@ namespace Infrastructure.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-            services.AddScoped<MenuService>();
-            services.AddScoped<RolService>();
-            services.AddScoped<UsuarioService>();
+            services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IRolService, RolService>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
             return services;
         }
 

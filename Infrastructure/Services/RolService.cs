@@ -1,5 +1,5 @@
 ﻿using Domain.Model;
-using Infrastructure.Repository;
+using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
 using Utilities.Shared;
 
@@ -7,9 +7,9 @@ namespace Infrastructure.Services
 {
     public class RolService : IRolService
     {
-        private readonly RolRepository _rolesRepository;
+        private readonly IRolRepository _rolesRepository;
 
-        public RolService(RolRepository rolRepository)
+        public RolService(IRolRepository rolRepository)
         {
             _rolesRepository = rolRepository;
         }

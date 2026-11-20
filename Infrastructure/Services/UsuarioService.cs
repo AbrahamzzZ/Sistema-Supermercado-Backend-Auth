@@ -1,7 +1,7 @@
 ﻿using Domain.Model;
 using Domain.Model.Dto;
 using FluentValidation;
-using Infrastructure.Repository;
+using Infrastructure.Repository.InterfacesRepository;
 using Infrastructure.Repository.InterfacesServices;
 using Infrastructure.Security;
 using Microsoft.Extensions.Logging;
@@ -11,11 +11,11 @@ namespace Infrastructure.Services
 {
     public class UsuarioService : IUsuarioService
     {
-        private readonly UsuarioRepository _usuarioRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
         private readonly IValidator<Usuario> _validator;
         private readonly ILogger<UsuarioService> _logger;
 
-        public UsuarioService(UsuarioRepository usuarioRepository, IValidator<Usuario> validator, ILogger<UsuarioService> logger)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IValidator<Usuario> validator, ILogger<UsuarioService> logger)
         {
             _usuarioRepository = usuarioRepository;
             _validator = validator;

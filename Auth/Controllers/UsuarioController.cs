@@ -2,7 +2,6 @@
 using Domain.Model.Dto;
 using Infrastructure.Repository.InterfacesServices;
 using Infrastructure.Helpers;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Utilities.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +12,11 @@ namespace APIRestSistemaVentas.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
-        private readonly UsuarioService _usuarioService;
-        private readonly MenuService _menuService;
+        private readonly IUsuarioService _usuarioService;
+        private readonly IMenuService _menuService;
         private readonly Token _token;
 
-        public UsuarioController(UsuarioService usuarioService, Token token, MenuService menuService)
+        public UsuarioController(IUsuarioService usuarioService, Token token, IMenuService menuService)
         {
             _usuarioService = usuarioService;
             _token = token;
