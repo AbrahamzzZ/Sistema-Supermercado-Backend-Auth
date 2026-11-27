@@ -13,21 +13,23 @@ que emite tokens JWT**: los firma con RS256 y publica la clave pública (JWKS) p
 
 Normalmente se levanta con el `docker-compose.yml` del repo del Gateway (Swagger: http://localhost:8002/swagger).
 
-Solo este servicio, desde Visual Studio o la terminal:
+**Para depurar:** a diferencia de los demás servicios, **no detengas el contenedor `auth-api`**: el Gateway y los
+otros servicios descargan desde él la clave pública para validar los tokens. Corre tu Auth local en paralelo:
 
-```bash
-dotnet run --project Auth --launch-profile https      # https://localhost:7186/swagger
-```
+1. Usa la misma clave privada que Docker, para que tus tokens sean válidos en todo el sistema (solo la primera vez):
 
-Necesita SQL Server (`ConnectionStrings:CadenaSQL`) y la clave privada. Para que la clave no cambie en cada reinicio:
+   ```powershell
+   cd Auth
+   dotnet user-secrets init
+   dotnet user-secrets set "Jwt:PrivateKeyPath" "C:\ruta\Sistema-Supermercado-Backend-Gateway\secrets\jwt_private_key.pem"
+   ```
 
-```powershell
-cd Auth
-dotnet user-secrets init
-dotnet user-secrets set "Jwt:PrivateKeyPath" "C:\ruta\Sistema-Supermercado-Backend-Gateway\secrets\jwt_private_key.pem"
-```
+2. F5 en Visual Studio (o `dotnet run --project Auth --launch-profile https`) → https://localhost:7186/swagger.
+   En el entorno Development, `appsettings.Development.json` lo conecta al SQL Server de Docker (`localhost,14330`,
+   la misma `DB_Auth`).
 
-Auth debe arrancar **antes** que los demás servicios, porque estos descargan su clave pública.
+Pruébalo desde su Swagger. Para usar tu propio SQL Server, define `ConnectionStrings:CadenaSQL` con
+`dotnet user-secrets`.
 
 ## Endpoints principales
 
